@@ -1,0 +1,16 @@
+{
+  "name": "line-text-helper",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch app.js",
+    "start": "node app.js"
+  },
+  "dependencies": {
+  "@line/bot-sdk": "^9.7.0",
+  "dotenv": "^16.4.5",
+  "express": "^4.19.2",
+  "openai": "^4.104.0"
+}
+}
