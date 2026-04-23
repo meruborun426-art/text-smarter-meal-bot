@@ -29,7 +29,7 @@ function loadMeals() {
   return JSON.parse(raw);
 }
 
-function formatDateInJST(date = new Date()) {
+function getJSTDateParts(baseDate = new Date()) {
   const formatter = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
     year: "numeric",
@@ -37,12 +37,25 @@ function formatDateInJST(date = new Date()) {
     day: "2-digit",
   });
 
-  const parts = formatter.formatToParts(date);
-  const year = parts.find((p) => p.type === "year").value;
-  const month = parts.find((p) => p.type === "month").value;
-  const day = parts.find((p) => p.type === "day").value;
+  const parts = formatter.formatToParts(baseDate);
+  const year = Number(parts.find((p) => p.type === "year").value);
+  const month = Number(parts.find((p) => p.type === "month").value);
+  const day = Number(parts.find((p) => p.type === "day").value);
 
-  return `${year}-${month}-${day}`;
+  return { year, month, day };
+}
+
+function getJSTDateString(offsetDays = 0) {
+  const { year, month, day } = getJSTDateParts(new Date());
+
+  const jstMiddayUtc = new Date(Date.UTC(year, month - 1, day, 3, 0, 0));
+  jstMiddayUtc.setUTCDate(jstMiddayUtc.getUTCDate() + offsetDays);
+
+  const y = jstMiddayUtc.getUTCFullYear();
+  const m = String(jstMiddayUtc.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(jstMiddayUtc.getUTCDate()).padStart(2, "0");
+
+  return `${y}-${m}-${d}`;
 }
 
 function getMealByDate(dateString) {
@@ -71,21 +84,11 @@ function buildAllMealsText(dateLabel, meal) {
 }
 
 function resolveRelativeTarget(mode) {
-  const now = new Date();
-
-  const jstNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
-  );
-
-  const today = new Date(jstNow);
-  const tomorrow = new Date(jstNow);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
   if (mode.startsWith("today_")) {
-    return { date: formatDateInJST(today), label: "今日" };
+    return { date: getJSTDateString(0), label: "今日" };
   }
   if (mode.startsWith("tomorrow_")) {
-    return { date: formatDateInJST(tomorrow), label: "明日" };
+    return { date: getJSTDateString(1), label: "明日" };
   }
   return null;
 }
