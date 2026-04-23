@@ -29,11 +29,20 @@ function loadMeals() {
   return JSON.parse(raw);
 }
 
-function formatDate(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+function formatDateInJST(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const year = parts.find((p) => p.type === "year").value;
+  const month = parts.find((p) => p.type === "month").value;
+  const day = parts.find((p) => p.type === "day").value;
+
+  return `${year}-${month}-${day}`;
 }
 
 function getMealByDate(dateString) {
@@ -63,15 +72,20 @@ function buildAllMealsText(dateLabel, meal) {
 
 function resolveRelativeTarget(mode) {
   const now = new Date();
-  const today = new Date(now);
-  const tomorrow = new Date(now);
+
+  const jstNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
+  );
+
+  const today = new Date(jstNow);
+  const tomorrow = new Date(jstNow);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   if (mode.startsWith("today_")) {
-    return { date: formatDate(today), label: "今日" };
+    return { date: formatDateInJST(today), label: "今日" };
   }
   if (mode.startsWith("tomorrow_")) {
-    return { date: formatDate(tomorrow), label: "明日" };
+    return { date: formatDateInJST(tomorrow), label: "明日" };
   }
   return null;
 }
