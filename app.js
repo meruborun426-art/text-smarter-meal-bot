@@ -147,6 +147,12 @@ async function handleEvent(event) {
     const mealType = detectMealType(userText);
     const meal = getMealByDate(dateString);
 
+    console.log("userText =", userText);
+    console.log("mode =", mode);
+    console.log("dateString =", dateString);
+    console.log("mealType =", mealType);
+    console.log("meal =", meal);
+
     if (!meal) {
       return reply(event.replyToken, [
         {
@@ -177,7 +183,12 @@ async function handleEvent(event) {
   }
 
   const target = resolveRelativeTarget(mode);
+  console.log("userText =", userText);
+  console.log("mode =", mode);
+  console.log("target =", target);
+
   const meal = getMealByDate(target.date);
+  console.log("meal =", meal);
 
   if (!meal) {
     return reply(event.replyToken, [
